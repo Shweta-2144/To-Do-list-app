@@ -42,6 +42,13 @@
         </div>
     </div>
 
-    <script src="script.js" defer></script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log("Service Worker Registered"))
+      .catch((error) => console.log("Service Worker Registration Failed:", error));
+  }
+</script>
+
 </body>
 </html>
