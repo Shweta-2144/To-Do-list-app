@@ -95,3 +95,15 @@ if ("serviceWorker" in navigator) {
         .then(() => console.log("Service Worker Registered!"))
         .catch(err => console.error("Service Worker Failed:", err));
 }
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js")
+    .then((registration) => {
+        console.log("Service Worker Registered:", registration);
+    })
+    .catch((error) => {
+        console.log("Service Worker Registration Failed:", error);
+    });
+} else {
+    console.log("Service Worker not supported in this browser.");
+}
+
