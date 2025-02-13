@@ -5,11 +5,11 @@ const ASSETS = [
     "/styles.css", 
     "/script.js",
     "/favicon.ico",
-    "/icons/icon-192x192.png", 
-    "/icons/icon-512x512.png"
+    "/icon-192x192.png.webp.webp",  // ✅ Fixed file path
+    "/icon-512x512.png.webp.webp"   // ✅ Fixed file path
 ];
 
-// Install event: Caches app shell files
+// Install event: Cache app shell files
 self.addEventListener("install", (event) => {
     console.log("Service Worker: Installing...");
 
@@ -19,6 +19,8 @@ self.addEventListener("install", (event) => {
             return cache.addAll(ASSETS);
         })
     );
+
+    self.skipWaiting(); // ✅ Ensures new SW activates immediately
 });
 
 // Activate event: Cleanup old caches
@@ -37,6 +39,8 @@ self.addEventListener("activate", (event) => {
             );
         })
     );
+
+    self.clients.claim(); // ✅ Ensures new SW takes control immediately
 });
 
 // Fetch event: Serve cached files when offline
@@ -44,10 +48,11 @@ self.addEventListener("fetch", (event) => {
     console.log("Service Worker: Fetching", event.request.url);
 
     event.respondWith(
-        caches.match(event.request).then((response) => {
-            return response || fetch(event.request);
-        }).catch(() => {
-            console.log("Service Worker: Network request failed, serving cached content if available.");
+        caches.match(event.request, { ignoreSearch: true }).then((response) => {
+            return response || fetch(event.request).catch(() => {
+                console.log("Service Worker: Network request failed, serving fallback content.");
+                return caches.match("/index.html"); // ✅ Serve fallback page
+            });
         })
     );
 });
