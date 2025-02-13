@@ -64,6 +64,11 @@ input, select {
     color: white;
 }
 
+/* ✅ Fix: Ensure placeholder text is visible */
+input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
 button {
     background: #ff7eb3;
     border: none;
@@ -76,6 +81,11 @@ button {
 
 button:hover {
     background: #ff5e90;
+}
+
+/* ✅ Fix: Add active state for mobile */
+button:active {
+    background: #ff3e80;
 }
 
 /* Task List */
@@ -144,6 +154,7 @@ li.Low { border-top: 5px solid green; }
 .dark-mode #progressText {
     color: #fff;
 }
+
 /* Responsive Design for Mobile */
 @media (max-width: 600px) {
     .container {
@@ -156,13 +167,18 @@ li.Low { border-top: 5px solid green; }
         gap: 8px;
     }
 
-    input, select, button {
+    input, select {
         width: 100%;
         font-size: 16px;
     }
 
+    /* ✅ Fix: Align button properly in mobile view */
     button {
+        width: 100%;
+        font-size: 16px;
         border-radius: 8px;
+        display: flex;
+        justify-content: center;
     }
 
     li {
@@ -174,4 +190,3 @@ li.Low { border-top: 5px solid green; }
         font-size: 14px;
     }
 }
-
