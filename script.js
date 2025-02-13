@@ -106,4 +106,9 @@ if ("serviceWorker" in navigator) {
 } else {
     console.log("Service Worker not supported in this browser.");
 }
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log("Service Worker Registered", reg))
+        .catch(err => console.log("Service Worker Registration Failed", err));
+}
 
