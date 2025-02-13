@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced To-Do List</title>
+    
+    <!-- Corrected Favicon Link -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="styles.css">
-    <link rel="icon" type="image/x-icon" href="favicon.io">
+    
+    <!-- Manifest File -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#007BFF">
-
 </head>
 <body>
     <div class="container">
@@ -43,13 +48,16 @@
         </div>
     </div>
 
-    <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-      .then(() => console.log("Service Worker Registered"))
-      .catch((error) => console.log("Service Worker Registration Failed:", error));
-  }
-</script>
+    <!-- JavaScript File -->
+    <script src="script.js"></script>
 
+    <!-- Service Worker Registration (Fixed Path) -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log("Service Worker Registered"))
+                .catch((error) => console.log("Service Worker Registration Failed:", error));
+        }
+    </script>
 </body>
 </html>
