@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
     addTaskBtn.addEventListener("click", addTask);
 
     function addTask() {
+        console.log("Add task function triggered"); // Debugging Log
         const taskText = taskInput.value.trim();
         const category = taskCategory.value;
         const dueDate = taskDate.value;
@@ -61,57 +62,51 @@ document.addEventListener("DOMContentLoaded", function () {
     darkModeToggle.addEventListener("click", function () {
         document.body.classList.toggle("dark-mode");
     });
-});
-// Enable touch-based drag & drop
-document.addEventListener("touchstart", handleTouchStart, false);
-document.addEventListener("touchmove", handleTouchMove, false);
 
-let touchStartY = 0;
-let draggedTask = null;
+    // Enable touch-based drag & drop
+    document.addEventListener("touchstart", handleTouchStart, false);
+    document.addEventListener("touchmove", handleTouchMove, false);
 
-function handleTouchStart(e) {
-    if (e.target.tagName === "LI") {
-        touchStartY = e.touches[0].clientY;
-        draggedTask = e.target;
-    }
-}
+    let touchStartY = 0;
+    let draggedTask = null;
 
-function handleTouchMove(e) {
-    if (draggedTask) {
-        let touchMoveY = e.touches[0].clientY;
-        let moveDirection = touchMoveY - touchStartY;
-
-        if (moveDirection > 50) {
-            draggedTask.nextElementSibling?.after(draggedTask);
-        } else if (moveDirection < -50) {
-            draggedTask.previousElementSibling?.before(draggedTask);
+    function handleTouchStart(e) {
+        if (e.target.tagName === "LI") {
+            touchStartY = e.touches[0].clientY;
+            draggedTask = e.target;
         }
-
-        draggedTask = null;
     }
-}
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-        .then(() => console.log("Service Worker Registered!"))
-        .catch(err => console.error("Service Worker Failed:", err));
-}
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js")
-    .then((registration) => {
-        console.log("Service Worker Registered:", registration);
-    })
-    .catch((error) => {
-        console.log("Service Worker Registration Failed:", error);
-    });
-} else {
-    console.log("Service Worker not supported in this browser.");
-}
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log("Service Worker Registered", reg))
-        .catch(err => console.log("Service Worker Registration Failed", err));
-}
-document.getElementById("addTaskBtn").addEventListener("click", function() {
-    console.log("Button Clicked!"); // Check if this message appears in the console
-});
 
+    function handleTouchMove(e) {
+        if (draggedTask) {
+            let touchMoveY = e.touches[0].clientY;
+            let moveDirection = touchMoveY - touchStartY;
+
+            if (moveDirection > 50) {
+                draggedTask.nextElementSibling?.after(draggedTask);
+            } else if (moveDirection < -50) {
+                draggedTask.previousElementSibling?.before(draggedTask);
+            }
+
+            draggedTask = null;
+        }
+    }
+
+    // Optimized Service Worker Registration
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js")
+            .then((registration) => {
+                console.log("Service Worker Registered:", registration);
+            })
+            .catch((error) => {
+                console.log("Service Worker Registration Failed:", error);
+            });
+    } else {
+        console.log("Service Worker not supported in this browser.");
+    }
+
+    // Debugging: Check if Button Click Works
+    document.getElementById("addTaskBtn").addEventListener("click", function () {
+        console.log("Button Clicked!"); // This should appear in the console
+    });
+});
