@@ -1,58 +1,45 @@
-const CACHE_NAME = "todo-list-v1";
-const ASSETS = [
-    "/", 
+const CACHE_NAME = "task-app-cache-v1";
+const urlsToCache = [
+    "/",
     "/index.html",
-    "/styles.css", 
+    "/styles.css",
     "/script.js",
-    "/favicon.ico",
-    "/icon-192x192.png.webp.webp",  // ✅ Fixed file path
-    "/icon-512x512.png.webp.webp"   // ✅ Fixed file path
+    "/manifest.json",
+    "/sounds/alarm1.mp3",
+    "/sounds/alarm2.mp3",
+    "/sounds/alarm3.mp3",
+    "/sounds/alarm4.mp3"
 ];
 
-// Install event: Cache app shell files
+// Install service worker and cache files
 self.addEventListener("install", (event) => {
-    console.log("Service Worker: Installing...");
-
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log("Service Worker: Caching files...");
-            return cache.addAll(ASSETS);
+            return cache.addAll(urlsToCache);
         })
     );
-
-    self.skipWaiting(); // ✅ Ensures new SW activates immediately
 });
 
-// Activate event: Cleanup old caches
-self.addEventListener("activate", (event) => {
-    console.log("Service Worker: Activated");
+// Fetch requests from cache first, then fallback to network
+self.addEventListener("fetch", (event) => {
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            return response || fetch(event.request);
+        })
+    );
+});
 
+// Update cache when new service worker is installed
+self.addEventListener("activate", (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cache) => {
                     if (cache !== CACHE_NAME) {
-                        console.log("Service Worker: Deleting old cache", cache);
                         return caches.delete(cache);
                     }
                 })
             );
-        })
-    );
-
-    self.clients.claim(); // ✅ Ensures new SW takes control immediately
-});
-
-// Fetch event: Serve cached files when offline
-self.addEventListener("fetch", (event) => {
-    console.log("Service Worker: Fetching", event.request.url);
-
-    event.respondWith(
-        caches.match(event.request, { ignoreSearch: true }).then((response) => {
-            return response || fetch(event.request).catch(() => {
-                console.log("Service Worker: Network request failed, serving fallback content.");
-                return caches.match("/index.html"); // ✅ Serve fallback page
-            });
         })
     );
 });
