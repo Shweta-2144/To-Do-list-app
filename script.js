@@ -1,112 +1,109 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const taskInput = document.getElementById("taskInput");
-    const taskCategory = document.getElementById("taskCategory");
-    const taskDate = document.getElementById("taskDate");
-    const taskPriority = document.getElementById("taskPriority");
-    const addTaskBtn = document.getElementById("addTaskBtn");
-    const taskList = document.getElementById("taskList");
-    const darkModeToggle = document.getElementById("darkModeToggle");
-    const progressText = document.getElementById("progressText");
-    const progressFill = document.getElementById("progressFill");
+document.addEventListener("DOMContentLoaded", () => {  
+    const taskInput = document.getElementById("taskInput");  
+    const taskCategory = document.getElementById("taskCategory");  
+    const taskDate = document.getElementById("taskDate");  
+    const taskPriority = document.getElementById("taskPriority");  
+    const addTaskBtn = document.getElementById("addTaskBtn");  
+    const taskList = document.getElementById("taskList");  
+    const progressFill = document.getElementById("progressFill");  
+    const progressText = document.getElementById("progressText");  
+    const darkModeToggle = document.getElementById("darkModeToggle");  
+    const alarmSelect = document.getElementById("alarmSelect");  
+    const taskTime = document.getElementById("taskTime");
 
-    addTaskBtn.addEventListener("click", addTask);
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];  
 
-    function addTask() {
-        console.log("Add task function triggered"); // Debugging Log
-        const taskText = taskInput.value.trim();
-        const category = taskCategory.value;
-        const dueDate = taskDate.value;
-        const priority = taskPriority.value;
-
-        if (taskText === "") {
-            alert("Please enter a task!");
-            return;
-        }
-
-        const li = document.createElement("li");
-        li.classList.add(category, priority);
-        li.draggable = true;
-        li.innerHTML = `
-            <span>${taskText} <small>(${category} - ${priority})</small></span>
-            <span class="due-date">${dueDate ? "Due: " + dueDate : ""}</span>
-            <button class="complete-btn">✔</button>
-            <button class="delete-btn">✖</button>
-        `;
-
-        taskList.appendChild(li);
-        taskInput.value = "";
-        taskDate.value = "";
-
-        li.querySelector(".complete-btn").addEventListener("click", function () {
-            li.classList.toggle("completed");
-            updateProgress();
-        });
-
-        li.querySelector(".delete-btn").addEventListener("click", function () {
-            li.remove();
-            updateProgress();
-        });
-
-        updateProgress();
-        saveTasks();
-    }
-
-    function updateProgress() {
-        const tasks = document.querySelectorAll("li");
-        const completedTasks = document.querySelectorAll("li.completed");
-        const percent = tasks.length ? Math.round((completedTasks.length / tasks.length) * 100) : 0;
-        progressFill.style.width = percent + "%";
-        progressText.textContent = `${percent}% Completed`;
-    }
-
-    darkModeToggle.addEventListener("click", function () {
+    // Function to toggle dark mode and store preference
+    function toggleDarkMode() {
         document.body.classList.toggle("dark-mode");
-    });
-
-    // Enable touch-based drag & drop
-    document.addEventListener("touchstart", handleTouchStart, false);
-    document.addEventListener("touchmove", handleTouchMove, false);
-
-    let touchStartY = 0;
-    let draggedTask = null;
-
-    function handleTouchStart(e) {
-        if (e.target.tagName === "LI") {
-            touchStartY = e.touches[0].clientY;
-            draggedTask = e.target;
-        }
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDarkMode);
     }
 
-    function handleTouchMove(e) {
-        if (draggedTask) {
-            let touchMoveY = e.touches[0].clientY;
-            let moveDirection = touchMoveY - touchStartY;
-
-            if (moveDirection > 50) {
-                draggedTask.nextElementSibling?.after(draggedTask);
-            } else if (moveDirection < -50) {
-                draggedTask.previousElementSibling?.before(draggedTask);
-            }
-
-            draggedTask = null;
-        }
+    // Apply dark mode if it was previously enabled
+    if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
     }
 
-    // Optimized Service Worker Registration
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("sw.js")
-            .then((registration) => {
-                console.log("Service Worker Registered:", registration);
-            })
-            .catch((error) => {
-                console.log("Service Worker Registration Failed:", error);
-            });
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener("click", toggleDarkMode);
     } else {
-        console.log("Service Worker not supported in this browser.");
+        console.error("❌ Error: darkModeToggle not found!");
+    }
+    // Dark Mode Toggle with Local Storage
+if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+
+        // Store user preference in localStorage
+        const isDarkMode = document.body.classList.contains("dark-mode");
+        localStorage.setItem("darkMode", isDarkMode);
+    });
+
+    // Load dark mode preference on page load
+    if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark-mode");
+    }
+}
+
+
+    function updateProgress() {  
+        const completedTasks = tasks.filter(task => task.completed).length;  
+        const totalTasks = tasks.length;  
+        const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);  
+        progressFill.style.width = `${progress}%`;  
+        progressText.textContent = `${progress}% Completed`;  
+    }
+    darkModeToggle.addEventListener("click", function () {
+    document.body.classList.toggle("dark-mode");
+    });
+
+    function saveTasks() {  
+        localStorage.setItem("tasks", JSON.stringify(tasks));  
     }
 
-    // Debugging: Check if Button Click Works
-    document.getElementById("addTaskBtn").addEventListener("click", function () {
-        console.log("Button Clicked!"); // This should appear in the console
+    function renderTasks() {  
+        taskList.innerHTML = "";  
+        tasks.forEach((task, index) => {  
+            const li = document.createElement("li");  
+            li.className = `${task.category} ${task.priority} ${task.completed ? "completed" : ""}`;  
+            li.innerHTML = `  
+                <span>${task.text} (${task.date ? task.date : "No Date"})</span>  
+                <button class="completeBtn">✔</button>  
+                <button class="deleteBtn">✖</button>  
+            `;  
+
+            li.querySelector(".completeBtn").addEventListener("click", () => {  
+                tasks[index].completed = !tasks[index].completed;  
+                saveTasks();  
+                renderTasks();  
+                updateProgress();  
+            });  
+
+            li.querySelector(".deleteBtn").addEventListener("click", () => {  
+                tasks.splice(index, 1);  
+                saveTasks();  
+                renderTasks();  
+                updateProgress();  
+            });  
+
+            taskList.appendChild(li);  
+        });  
+
+        updateProgress();  
+    }
+
+    addTaskBtn.addEventListener("click", () => {  
+        if (!taskInput.value.trim()) {  
+            alert("Task cannot be empty!");  
+            return;  
+        }  
+
+        tasks.push({ text: taskInput.value.trim(), completed: false });  
+        saveTasks();  
+        renderTasks();  
+        taskInput.value = "";  
     });
+
+    renderTasks();  
 });
