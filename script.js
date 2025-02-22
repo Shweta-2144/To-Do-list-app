@@ -45,6 +45,18 @@ if (darkModeToggle) {
         document.body.classList.add("dark-mode");
     }
 }
+    function notifyUser(taskText, alarmFile) {
+    let notificationDiv = document.getElementById("notification");
+    notificationDiv.innerHTML = `<p>⏰ Your time has started for "<strong>${taskText}</strong>"!</p>`;
+
+    let alarmSound = new Audio(alarmFile);
+    alarmSound.play();
+
+    // Hide notification after 5 seconds
+    setTimeout(() => {
+        notificationDiv.innerHTML = "";
+    }, 5000);
+}
 
 
     function updateProgress() {  
