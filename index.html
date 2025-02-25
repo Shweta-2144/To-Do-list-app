@@ -1,63 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced To-Do List</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <script src="script.js"></script>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced To-Do List</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <script defer src="script.js"></script>
 </head>
 <body>
-    <header>
-        <h1>To-Do List</h1>
-        <button id="darkModeToggle">🌙 Dark Mode</button>
-    </header>
+  <header>
+    <h1>To-Do List</h1>
+    <button id="darkModeToggle">🌙 Dark Mode</button>
+  </header>
 
-    <main>
-        <div class="task-input">
-            <input type="text" id="taskInput" placeholder="Enter task..." required>
-            <select id="taskCategory">
-                <option value="work">Work</option>
-                <option value="personal">Personal</option>
-                <option value="study">Study</option>
-            </select>
-            <input type="date" id="taskDate">
-            <input type="time" id="taskTime">
+  <main>
+    <div class="task-input">
+      <input type="text" id="taskInput" placeholder="Enter task..." required>
+      <select id="taskCategory">
+        <option value="work">Work</option>
+        <option value="personal">Personal</option>
+        <option value="study">Study</option>
+      </select>
+      
+      <input type="date" id="taskDate">
+      <input type="time" id="taskTime">
+      <span id="amPmDisplay"></span> <!-- Optional, if you need to show AM/PM -->
 
-            <select id="alarmSelect">
-                <option value="alarm1.mp3">Alarm 1</option>
-                <option value="alarm2.mp3">Alarm 2</option>
-                <option value="alarm3.mp3">Alarm 3</option>
-                <option value="alarm4.mp3">Alarm 4</option>
-            </select>
-            <button id="playAlarmBtn">🔊 Preview</button>
-            <button id="addTaskBtn">Add Task</button>
-        </div>
+      <select id="alarmSelect">
+        <option value="alarm1.mp3">Alarm 1</option>
+        <option value="alarm2.mp3">Alarm 2</option>
+        <option value="alarm3.mp3">Alarm 3</option>
+        <option value="alarm4.mp3">Alarm 4</option>
+      </select>
+      <button id="playAlarmBtn">🔊 Preview</button>
+      <button id="addTaskBtn">Add Task</button>
+    </div>
 
-        <div class="progress-bar">
-            <div id="progressFill"></div>
-            <span id="progressText">0% Completed</span>
-        </div>
+    <div class="progress-bar">
+      <div id="progressFill"></div>
+      <span id="progressText">0% Completed</span>
+    </div>
 
-        <ul id="taskList"></ul>
-        <div id="notification"></div>
+    <ul id="taskList"></ul>
+  </main>
 
-    </main>
-
-    
-
-    <script>
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("sw.js").then(() => {
-                console.log("Service Worker Registered");
-            });
-        }
-    </script>
-     <script src="script.js"></script>
-     
-
+  <script>
+    // Service Worker registration for PWA
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").then(() => {
+        console.log("Service Worker Registered");
+      });
+    }
+  </script>
+  
+  <!-- Live-server injected code (if any) will come here -->
 </body>
 </html>
