@@ -7,11 +7,11 @@
     "background_color": "#6e8efb",
     "theme_color": "#6e8efb",
     "icons": [
-
-        {
-            "src": "icons/icon-512x512.png.webp",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
+      {
+        "src": "icons/icon-512x512.png.webp",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
     ]
-}
+  }
+  
