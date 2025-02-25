@@ -5,10 +5,10 @@ const urlsToCache = [
     "/styles.css",
     "/script.js",
     "/manifest.json",
-    "/sounds/alarm1.mp3",
-    "/sounds/alarm2.mp3",
-    "/sounds/alarm3.mp3",
-    "/sounds/alarm4.mp3"
+    "./sounds/alarm1.mp3",
+    "./sounds/alarm2.mp3",
+    "./sounds/alarm3.mp3",
+    "./sounds/alarm4.mp3"
 ];
 
 // Install service worker and cache files
