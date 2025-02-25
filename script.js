@@ -1,121 +1,138 @@
-document.addEventListener("DOMContentLoaded", () => {  
-    const taskInput = document.getElementById("taskInput");  
-    const taskCategory = document.getElementById("taskCategory");  
-    const taskDate = document.getElementById("taskDate");  
-    const taskPriority = document.getElementById("taskPriority");  
-    const addTaskBtn = document.getElementById("addTaskBtn");  
-    const taskList = document.getElementById("taskList");  
-    const progressFill = document.getElementById("progressFill");  
-    const progressText = document.getElementById("progressText");  
-    const darkModeToggle = document.getElementById("darkModeToggle");  
-    const alarmSelect = document.getElementById("alarmSelect");  
+document.addEventListener("DOMContentLoaded", function () {
+    const darkModeToggle = document.getElementById("darkModeToggle");
+    const body = document.body;
+    const taskInput = document.getElementById("taskInput");
+    const taskCategory = document.getElementById("taskCategory");
+    const taskDate = document.getElementById("taskDate");
     const taskTime = document.getElementById("taskTime");
-
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];  
-
-    // Function to toggle dark mode and store preference
-    function toggleDarkMode() {
-        document.body.classList.toggle("dark-mode");
-        const isDarkMode = document.body.classList.contains("dark-mode");
-        localStorage.setItem("darkMode", isDarkMode);
+    const taskList = document.getElementById("taskList");
+    const alarmSelect = document.getElementById("alarmSelect");
+    const playAlarmBtn = document.getElementById("playAlarmBtn");
+    const addTaskBtn = document.getElementById("addTaskBtn");
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+  
+    // Retrieve tasks from localStorage or set as empty array
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+  
+    // Load tasks from localStorage and update UI
+    function loadTasks() {
+      taskList.innerHTML = "";
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+        // Add "completed" class if task is marked as complete
+        li.className = task.completed ? "completed" : "";
+        li.innerHTML = `
+          <span>${task.text} - ${task.category} - ${task.date} - ${task.time}</span>
+          <div class="task-buttons">
+            <button class="complete-btn" onclick="completeTask(${index})">✔</button>
+            <button class="delete-btn" onclick="removeTask(${index})">❌</button>
+          </div>
+        `;
+        taskList.appendChild(li);
+      });
+      updateProgress();
     }
-
-    // Apply dark mode if it was previously enabled
-    if (localStorage.getItem("darkMode") === "true") {
-        document.body.classList.add("dark-mode");
+  
+    // Save tasks to localStorage
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
     }
-
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener("click", toggleDarkMode);
-    } else {
-        console.error("❌ Error: darkModeToggle not found!");
-    }
-    // Dark Mode Toggle with Local Storage
-if (darkModeToggle) {
-    darkModeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark-mode");
-
-        // Store user preference in localStorage
-        const isDarkMode = document.body.classList.contains("dark-mode");
-        localStorage.setItem("darkMode", isDarkMode);
+  
+    // Add new task
+    addTaskBtn.addEventListener("click", function () {
+      const taskText = taskInput.value.trim();
+      const category = taskCategory.value;
+      const date = taskDate.value;
+      const time = taskTime.value;
+      const alarm = alarmSelect.value;
+  
+      if (taskText && date && time) {
+        tasks.push({ 
+          text: taskText, 
+          category, 
+          date, 
+          time, 
+          alarm, 
+          alerted: false, 
+          completed: false 
+        });
+        saveTasks();
+        loadTasks();
+        taskInput.value = "";
+        taskDate.value = "";
+        taskTime.value = "";
+      } else {
+        alert("Please enter all fields.");
+      }
     });
-
-    // Load dark mode preference on page load
-    if (localStorage.getItem("darkMode") === "true") {
-        document.body.classList.add("dark-mode");
+  
+    // Expose completeTask to global scope so onclick works
+    window.completeTask = function (index) {
+      // Toggle completed status in the tasks array
+      tasks[index].completed = !tasks[index].completed;
+      saveTasks();
+      loadTasks();
+    };
+  
+    // Expose removeTask to global scope so onclick works
+    window.removeTask = function (index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      loadTasks();
+    };
+  
+    // Preview Alarm Sound
+    playAlarmBtn.addEventListener("click", function () {
+      const selectedAlarm = alarmSelect.value;
+      if (selectedAlarm) {
+        console.log("Playing preview:", selectedAlarm);
+        const audio = new Audio(selectedAlarm);
+        audio.play().catch(error => console.error("Error playing alarm:", error));
+      }
+    });
+  
+    // Check tasks every minute and play alarm when time matches
+    function checkTasksAndPlayAlarm() {
+      const now = new Date();
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      const formattedCurrentTime = `${String(currentHours).padStart(2, '0')}:${String(currentMinutes).padStart(2, '0')}`;
+  
+      console.log("Checking tasks at:", formattedCurrentTime);
+  
+      tasks.forEach((task, index) => {
+        // Log each task to help with debugging time format issues
+        console.log(`Task ${index}: ${task.text} - ${task.time}`);
+        if (!task.alerted && task.time === formattedCurrentTime) {
+          alert(`⏰ Time for task: ${task.text}`);
+          if (task.alarm) {
+            const alarmAudio = new Audio(task.alarm);
+            alarmAudio.play().catch(error => console.error("Error playing alarm:", error));
+          }
+          task.alerted = true;
+          saveTasks();
+        }
+      });
     }
-}
-    function notifyUser(taskText, alarmFile) {
-    let notificationDiv = document.getElementById("notification");
-    notificationDiv.innerHTML = `<p>⏰ Your time has started for "<strong>${taskText}</strong>"!</p>`;
-
-    let alarmSound = new Audio(alarmFile);
-    alarmSound.play();
-
-    // Hide notification after 5 seconds
-    setTimeout(() => {
-        notificationDiv.innerHTML = "";
-    }, 5000);
-}
-
-
-    function updateProgress() {  
-        const completedTasks = tasks.filter(task => task.completed).length;  
-        const totalTasks = tasks.length;  
-        const progress = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);  
-        progressFill.style.width = `${progress}%`;  
-        progressText.textContent = `${progress}% Completed`;  
+  
+    // Update progress bar based on completed tasks
+    function updateProgress() {
+      const totalTasks = tasks.length;
+      const completedTasks = tasks.filter(task => task.completed).length;
+      const percent = totalTasks ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      progressFill.style.width = percent + "%";
+      progressText.textContent = `${percent}% Completed`;
     }
+  
+    // Dark Mode Toggle
     darkModeToggle.addEventListener("click", function () {
-    document.body.classList.toggle("dark-mode");
+      body.classList.toggle("dark-mode");
+      darkModeToggle.textContent = body.classList.contains("dark-mode") ? "☀️ Light Mode" : "🌙 Dark Mode";
     });
-
-    function saveTasks() {  
-        localStorage.setItem("tasks", JSON.stringify(tasks));  
-    }
-
-    function renderTasks() {  
-        taskList.innerHTML = "";  
-        tasks.forEach((task, index) => {  
-            const li = document.createElement("li");  
-            li.className = `${task.category} ${task.priority} ${task.completed ? "completed" : ""}`;  
-            li.innerHTML = `  
-                <span>${task.text} (${task.date ? task.date : "No Date"})</span>  
-                <button class="completeBtn">✔</button>  
-                <button class="deleteBtn">✖</button>  
-            `;  
-
-            li.querySelector(".completeBtn").addEventListener("click", () => {  
-                tasks[index].completed = !tasks[index].completed;  
-                saveTasks();  
-                renderTasks();  
-                updateProgress();  
-            });  
-
-            li.querySelector(".deleteBtn").addEventListener("click", () => {  
-                tasks.splice(index, 1);  
-                saveTasks();  
-                renderTasks();  
-                updateProgress();  
-            });  
-
-            taskList.appendChild(li);  
-        });  
-
-        updateProgress();  
-    }
-
-    addTaskBtn.addEventListener("click", () => {  
-        if (!taskInput.value.trim()) {  
-            alert("Task cannot be empty!");  
-            return;  
-        }  
-
-        tasks.push({ text: taskInput.value.trim(), completed: false });  
-        saveTasks();  
-        renderTasks();  
-        taskInput.value = "";  
-    });
-
-    renderTasks();  
-});
+  
+    // Check tasks on load and start alarm check interval (every minute)
+    loadTasks();
+    setInterval(checkTasksAndPlayAlarm, 60000);
+  });
+  
